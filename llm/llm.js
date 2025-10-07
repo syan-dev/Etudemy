@@ -1,5 +1,5 @@
 const YouTubeQuestionGenerator = {
-    // Phần 1: Cấu hình
+    // PART 1: CONFIGURATION
     config: {
         apiKey: "sk-xxxxxxxxxx",
         transcriptSelector: 'ytd-transcript-segment-renderer .segment-text',
@@ -11,7 +11,7 @@ const YouTubeQuestionGenerator = {
         }
     },
 
-    // Phần 2: Giao diện người dùng
+    // PART 2: UI
     ui: {
         extractTranscript: function() {
             const selector = YouTubeQuestionGenerator.config.transcriptSelector;
@@ -39,7 +39,7 @@ const YouTubeQuestionGenerator = {
         }
     },
 
-    // Phần 3: API 
+    // PART 3: API 
     api: {
         callOpenAI: async function(textChunk) {
             console.log("Đang gửi chunk đã làm sạch đến OpenAI API:", textChunk.substring(0, 100) + "...");
@@ -82,7 +82,7 @@ const YouTubeQuestionGenerator = {
         }
     },
 
-    // Phần 4: Logic xử lý dữ liệu 
+    // PART 4: DATA PROCESSING LOGIC - CHUNKING - CLEANING - FILTERING(BASIC) 
     logic: {
         chunkBySentences: function(text, maxSize) {
             const chunks = [];
@@ -147,7 +147,7 @@ const YouTubeQuestionGenerator = {
         }
     },
 
-    // Phần 5: Hàm khởi chạy chính
+    // PART 5: MAIN THREAD
     run: async function() {
         if (this.config.apiKey.startsWith("sk-xxx")) {
             this.ui.showAlert("LỖI: Vui lòng dán OpenAI API Key của bạn vào 'config.apiKey'.", true);
@@ -176,7 +176,6 @@ const YouTubeQuestionGenerator = {
             const mergedQuestions = [].concat(...allQuestionsArrays);
             console.log(`Đã tạo tổng cộng ${mergedQuestions.length} câu hỏi (trước khi lọc).`);
 
-            // CẢI TIẾN 2: Sử dụng bộ lọc ngữ nghĩa
             const uniqueQuestions = this.logic.getUniqueQuestionsBySignature(mergedQuestions);
 
             if (uniqueQuestions.length > 0) {
@@ -190,6 +189,5 @@ const YouTubeQuestionGenerator = {
     }
 };
 
-// Khởi chạy script
 YouTubeQuestionGenerator.run();
 
