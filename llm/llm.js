@@ -120,17 +120,19 @@ const YouTubeQuestionGenerator = {
         },
 
         getUniqueQuestionsBySignature: function(questions) {
-            // Danh sách các từ phổ biến (stop words) trong tiếng Việt để loại bỏ
-            const vietnameseStopWords = new Set(['của', 'là', 'cho', 'có', 'và', 'tôi', 'bạn', 'một', 'được', 'để', 'khi', 'thì', 'ở', 'tại', 'trong', 'trên', 'dưới', 'với', 'về', 'cái', 'các', 'những', 'này', 'đó', 'gì', 'ai', 'làm', 'thế', 'nào', 'tại', 'sao', 'không']);
+            // List of common English stop words to filter out
+            const englishStopWords = new Set([
+                'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 'he', 'i', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to', 'was', 'were', 'will', 'with', 'what', 'when', 'where', 'who', 'why', 'how', 'you', 'your', 'they', 'we', 'me', 'my', 'is', 'are'
+            ]);
 
             const createSignature = (text) => {
                 return text
-                    .toLowerCase() // Chuyển về chữ thường
-                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "") // Xóa dấu câu
-                    .split(/\s+/) // Tách thành các từ
-                    .filter(word => !vietnameseStopWords.has(word) && word.length > 1) // Lọc bỏ stop words
-                    .sort() // Sắp xếp các từ khóa
-                    .join(' '); // Nối lại thành "chữ ký"
+                    .toLowerCase() // Convert to lower case
+                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "") // Remove punctuation
+                    .split(/\s+/) // Split into words
+                    .filter(word => !englishStopWords.has(word) && word.length > 1) // Filter out stop words
+                    .sort() // Sort keywords alphabetically
+                    .join(' '); // Join back into a "signature"
             };
 
             const seenSignatures = new Set();
