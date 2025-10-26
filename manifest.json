@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Sequential Quiz (per-chunk, 80 words)",
+  "version": "1.2.0",
+  "description": "Reads YouTube transcript, chunks by 80 words, sequentially generates one MCQ per chunk and shows an overlay for each.",
+  "permissions": ["scripting", "activeTab"],
+  "host_permissions": ["https://*.youtube.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

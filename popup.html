@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>YouTube Sequential Quiz</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; min-width: 280px; padding: 12px; }
+    h3 { margin: 0 0 8px; }
+    p  { margin: 0 0 12px; opacity: .85; }
+    button { width: 100%; padding: 10px; font-size: 15px; margin: 6px 0; }
+    .muted { opacity: .8; }
+  </style>
+</head>
+<body>
+  <h3>Sequential Quiz (80 words/chunk)</h3>
+  <p class="muted">Generates one question per chunk, shows it, then moves on.</p>
+
+  <button id="btnStart">Start Sequential Quiz</button>
+  <button id="btnStop" class="muted">Stop</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>
