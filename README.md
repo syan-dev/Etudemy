@@ -2,6 +2,8 @@
 
 Learn from YouTube videos proactively with AI-generated questions.
 
+![Etudemy Quiz](images/quiz.png)
+
 ### Installation
 
 To use Etudemy, follow these steps:
@@ -15,3 +17,5 @@ To use Etudemy, follow these steps:
 ### Usage
 
 Open a YouTube video, click the Etudemy extension icon in the toolbar, and enjoy learning with AI-generated questions!
+
+![Start the quiz](images/setting.png)
