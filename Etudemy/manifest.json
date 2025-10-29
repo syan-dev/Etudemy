@@ -12,5 +12,15 @@
       "run_at": "document_idle"
     }
   ],
-  "action": { "default_popup": "popup.html" }
+  "action": { "default_popup": "popup.html" },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "quiz-overlay.html",
+        "quiz-overlay.css",
+        "transcript.js"
+      ],
+      "matches": ["https://*.youtube.com/*"]
+    }
+  ]
 }
