@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Sequential Quiz (per-chunk)",
+  "version": "1.2.1",
+  "description": "Sequential MCQ per 80-word chunk without opening transcript panel.",
+  "permissions": ["scripting", "activeTab"],
+  "host_permissions": ["https://*.youtube.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["transcript.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_popup": "popup.html" }
+}
