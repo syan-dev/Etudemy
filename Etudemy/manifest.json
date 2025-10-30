@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Sequential Quiz (per-chunk)",
-  "version": "1.2.1",
+  "name": "Etudemy",
+  "version": "1.2.2",
   "description": "Sequential MCQ per 80-word chunk without opening transcript panel.",
   "permissions": ["scripting", "activeTab"],
   "host_permissions": ["https://*.youtube.com/*"],
@@ -18,6 +18,8 @@
       "resources": [
         "quiz-overlay.html",
         "quiz-overlay.css",
+        "results-panel.html",    
+        "results-panel.css",      
         "transcript.js"
       ],
       "matches": ["https://*.youtube.com/*"]

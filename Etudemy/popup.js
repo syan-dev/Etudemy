@@ -88,3 +88,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     showView('start'); 
   }
 });
+// === Add handlers for View Results buttons ===
+document.getElementById("btnViewResults")?.addEventListener("click", () => {
+  sendToActive({ action: "ytq_show_results" });
+  window.close();
+});
+
+document.getElementById("btnViewResults2")?.addEventListener("click", () => {
+  sendToActive({ action: "ytq_show_results" });
+  window.close();
+});
