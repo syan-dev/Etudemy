@@ -19,6 +19,8 @@
     }
   };
 
+  // ... (All functions from $v() down to buildWordChunks() remain unchanged) ...
+
   const $v = () => document.querySelector("video");
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -39,7 +41,7 @@
       const items = Array.from(document.querySelectorAll("ytd-menu-service-item-renderer tp-yt-paper-item"));
       const btn = items.find(el => /transcript/i.test(el.textContent || ""));
       btn?.click();
-    } catch { }
+    } catch {}
   }
 
   function grabTranscriptNodes() {
@@ -101,7 +103,6 @@
     return segs;
   }
 
-
   function buildWordChunks(segs, targetWords) {
     const chunks = [];
     let bufText = [];
@@ -123,25 +124,35 @@
     return chunks;
   }
 
-  function injectStylesOnce() {
+  // ===================================================================
+  // FIXED FUNCTIONS START HERE
+  // ===================================================================
+
+  /**
+   * [FIXED] Injects the quiz-overlay.css file from the extension package.
+   */
+  async function injectStylesOnce() {
     if (document.getElementById("ytq-overlay-styles")) return;
     try {
-      const s = document.createElement("link");
+      const url = chrome.runtime.getURL("quiz-overlay.css");
+      const css = await fetch(url).then(r => r.text());
+      const s = document.createElement("style");
       s.id = "ytq-overlay-styles";
-      s.rel = "stylesheet";
-      s.href = chrome.runtime.getURL("quiz-overlay.css");
+      s.textContent = css;
       document.head.appendChild(s);
     } catch (e) {
-      console.error("[YTQ] Failed to inject overlay CSS:", e);
+      console.error("YTQ: Failed to inject quiz-overlay.css", e);
     }
   }
+
+  // ... (coerceQuestion, normalizeQuestion, isValidQuestion, ensureModel, generateQuestionForChunk functions remain unchanged) ...
 
   function coerceQuestion(out) {
     let obj = null;
     if (typeof out === "string") {
       try { obj = JSON.parse(out); } catch {
         const m = out.match(/\{[\s\S]*\}/);
-        if (m) { try { obj = JSON.parse(m[0]); } catch { } }
+        if (m) { try { obj = JSON.parse(m[0]); } catch {} }
       }
     }
     if (!obj && out && typeof out === "object") obj = out;
@@ -149,7 +160,7 @@
     if (Array.isArray(obj.questions) && obj.questions.length) obj = obj.questions[0];
     if (!obj.options && Array.isArray(obj.choices)) obj.options = obj.choices;
     if (obj.answer && typeof obj.answer === "string") {
-      const map = { A: 0, B: 1, C: 2, D: 3 };
+      const map = { A:0, B:1, C:2, D:3 };
       const k = obj.answer.trim().toUpperCase()[0];
       if (k in map) obj.answerIndex = map[k];
     }
@@ -196,14 +207,8 @@
   async function generateQuestionForChunk(ch) {
     const model = await ensureModel();
     const prompt = [
-      "You are an MCQ generator for YouTube content.",
+      "You are an MCQ generator for YouTube transcript chunks.",
       "Create EXACTLY 1 question with 4 options based ONLY on the chunk below.",
-      "You don't need to mention `based on Youtube video` or `based on transcript` in the question.",
-      "Make the question clear and concise.",
-      "Distractors (wrong options) should be plausible but clearly incorrect.",
-      "Randomize the order of options.",
-      "Avoid using 'All of the above' or 'None of the above' as options.",
-      "Do NOT include any explanations in the options.",
       "Return JSON with: question, options[4], answerIndex (0..3), explanation.",
       "",
       "CHUNK:",
@@ -219,67 +224,69 @@
         temperature: 0.7
       });
       q = coerceQuestion(out);
-    } catch { }
+    } catch {}
 
     if (!isValidQuestion(q)) {
       try {
         const raw = await model.prompt(prompt);
         q = coerceQuestion(raw);
-      } catch { }
+      } catch {}
     }
 
     q = normalizeQuestion(q, ch.text);
     return q;
   }
 
+
+  /**
+   * [FIXED] Loads the overlay from 'quiz-overlay.html' and uses the
+   * correct styles from 'quiz-overlay.css'.
+   */
   async function showQuestionOverlay(q) {
-    injectStylesOnce();
+    await injectStylesOnce(); // Use the new function to load external CSS
     const v = $v();
     const wasPlaying = !!(v && !v.paused && !v.ended && v.readyState > 2);
-    try { v?.pause(); } catch { }
+    try { v?.pause(); } catch {}
 
     const overlay = document.createElement("div");
     overlay.className = "ytq-overlay";
-
-    // --- NEW LOGIC ---
+    
+    // [FIX] Fetch and inject the HTML template
+    let box;
     try {
-      // 1. Fetch the HTML template
-      const htmlUrl = chrome.runtime.getURL("quiz-overlay.html");
-      const htmlContent = await fetch(htmlUrl).then(r => r.text());
-
-      // 2. Inject the HTML into the overlay
-      // We wrap it so we can remove the 'ytq-box' easily if needed,
-      // but here we'll just set the innerHTML of the overlay.
-      overlay.innerHTML = htmlContent;
-
+      const url = chrome.runtime.getURL("quiz-overlay.html");
+      const html = await fetch(url).then(r => r.text());
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      box = tempDiv.querySelector('.ytq-box');
+      if (!box) throw new Error(".ytq-box not found in template");
+      overlay.appendChild(box);
     } catch (e) {
-      console.error("[YTQ] Failed to load quiz-overlay.html", e);
-      overlay.innerHTML = `<div class="ytq-box"><h2>Error</h2><p>Could not load quiz UI.</p></div>`;
+      console.error("YTQ: Failed to load quiz-overlay.html", e);
+      // Fallback to simple creation if template fails
+      box = document.createElement("div");
+      box.className = "ytq-box";
+      box.textContent = "Error: Could not load quiz UI.";
+      overlay.appendChild(box);
     }
-    // --- END NEW LOGIC ---
 
-    // 3. Find elements *inside* the new HTML
-    const box = overlay.querySelector(".ytq-box");
-    const title = overlay.querySelector("#ytq-question-title");
+    // Get elements from the loaded template
+    const title = box.querySelector("#ytq-question-title");
     const buttons = [
-      overlay.querySelector("#ytq-opt-0"),
-      overlay.querySelector("#ytq-opt-1"),
-      overlay.querySelector("#ytq-opt-2"),
-      overlay.querySelector("#ytq-opt-3"),
-    ];
-    const sub = overlay.querySelector("#ytq-feedback-sub");
-    const skip = overlay.querySelector("#ytq-skip-btn");
+      box.querySelector("#ytq-opt-0"),
+      box.querySelector("#ytq-opt-1"),
+      box.querySelector("#ytq-opt-2"),
+      box.querySelector("#ytq-opt-3"),
+    ].filter(Boolean); // Filter out nulls if template was wrong
+    const sub = box.querySelector("#ytq-feedback-sub");
+    const skip = box.querySelector("#ytq-skip-btn");
 
-    if (!box || !title || !buttons.every(Boolean) || !sub || !skip) {
-      console.error("[YTQ] Quiz UI template is missing required elements.");
-      try { if (wasPlaying) v?.play(); } catch { }
-      return { skipped: true }; // Fail gracefully
-    }
-
-    // 4. Populate content
-    title.textContent = q.question || "Question";
+    // Populate template
+    if (title) title.textContent = q.question || "Question";
     q.options.forEach((opt, i) => {
-      if (buttons[i]) buttons[i].textContent = opt;
+      if (buttons[i]) {
+        buttons[i].textContent = opt;
+      }
     });
 
     let resolved = false;
@@ -289,20 +296,18 @@
     const done = (result) => {
       if (resolved) return;
       resolved = true;
-
-      // Add a fade-out animation
-      overlay.style.animation = "ytqFadeOut 0.2s ease forwards";
-      overlay.addEventListener("animationend", () => {
-        overlay.remove();
-      });
-
-      try { if (wasPlaying) v?.play(); } catch { }
+      overlay.remove();
+      try { if (wasPlaying) v?.play(); } catch {}
       if (typeof resolveP === "function") resolveP(result);
     };
 
-    // 5. Attach event listeners
-    skip.addEventListener("click", () => done({ skipped: true }));
+    // Add skip handler
+    if (skip) {
+      skip.addEventListener("click", () => done({ skipped: true }));
+    }
 
+    // [FIX] This logic was correct, but now it operates on the
+    // template elements and will be styled by the correct CSS file.
     let locked = false;
     buttons.forEach((btn, i) => {
       btn.addEventListener("click", () => {
@@ -317,7 +322,7 @@
           btn.classList.add("ytq-wrong");
           const correctBtn = buttons[q.answerIndex];
           if (correctBtn) correctBtn.classList.add("ytq-correct");
-          sub.textContent = "Showing the correct answer…";
+          if (sub) sub.textContent = "Showing the correct answer…";
           setTimeout(() => done({ correct: false, chosen: i }), 1200);
         }
       });
@@ -326,6 +331,10 @@
     document.body.appendChild(overlay);
     return p;
   }
+
+  // ===================================================================
+  // END OF FIXED FUNCTIONS
+  // ===================================================================
 
   function waitForVideoToReach(targetSec, epsilon = 0.25) {
     return new Promise((resolve) => {
@@ -415,24 +424,18 @@
     state.stopping = true;
   }
 
-
-
   chrome.runtime.onMessage.addListener((msg, _s, sendResponse) => {
     if (msg?.action === "ytq_sequential_start") {
       sequentialRun().then(r => sendResponse({ ok: !!r.ok, ...r })).catch(err => sendResponse({ ok: false, error: String(err) }));
-      return true; // Keep message port open for async response
+      return true;
     }
     if (msg?.action === "ytq_sequential_stop") {
-      stopSequential();
-      sendResponse({ ok: true });
-      return; // Synchronous, no 'true' needed
+      stopSequential(); sendResponse({ ok: true }); return;
     }
-
-    // --- ADD THIS NEW HANDLER ---
+    // [FIX] Add the get_status listener from popup.js
     if (msg?.action === "ytq_get_status") {
       sendResponse({ ok: true, running: state.running });
-      return; // Synchronous, no 'true' needed
+      return;
     }
-    // --- END OF NEW HANDLER ---
   });
 })();
