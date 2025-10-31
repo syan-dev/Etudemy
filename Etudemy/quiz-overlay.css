@@ -1,0 +1,123 @@
+/* quiz-overlay.css */
+.ytq-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7); /* Slightly darker bg */
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0; /* Start hidden for fade-in */
+  animation: ytqFadeIn 0.3s ease forwards;
+}
+
+.ytq-box {
+  background: #282828; /* Darker theme */
+  color: #fff;
+  max-width: 720px;
+  width: min(92vw, 720px);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  padding: 24px;
+  line-height: 1.45;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  transform: scale(0.95); /* Start small for pop-in */
+  animation: ytqPopIn 0.3s 0.1s ease forwards;
+}
+
+.ytq-box h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.ytq-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.ytq-options button {
+  border: 1px solid #555;
+  background: #3e3e3e;
+  color: #fff;
+  padding: 12px 14px;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.ytq-options button:hover:not(:disabled) {
+  background: #4a4a4a;
+  border-color: #777;
+}
+
+.ytq-options button.ytq-correct {
+  border-color: #22c55e;
+  background: #16341f;
+  color: #d1fae5;
+  font-weight: 600;
+}
+
+.ytq-options button.ytq-wrong {
+  border-color: #ef4444;
+  background: #3a1313;
+  color: #fee2e2;
+  font-weight: 600;
+}
+
+.ytq-options button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ytq-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.ytq-sub {
+  opacity: 0.8;
+  font-size: 13px;
+}
+
+.ytq-close {
+  cursor: pointer;
+  opacity: 0.7;
+  font-size: 18px;
+  padding: 4px;
+}
+
+.ytq-close:hover {
+  opacity: 1;
+}
+
+/* Animations for a "better GUI" */
+@keyframes ytqFadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes ytqPopIn {
+  to { transform: scale(1); }
+}
+
+/* Spinner (unchanged) */
+.ytq-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #888;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ytqspin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes ytqspin {
+  to { transform: rotate(360deg); }
+}

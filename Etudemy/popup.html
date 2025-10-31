@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>YouTube Sequential Quiz</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Arial, sans-serif;
+      min-width: 300px;
+      padding: 16px;
+      background: #f9f9f9;
+      color: #111;
+    }
+    h3 {
+      margin: 0 0 4px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    p {
+      margin: 0 0 16px;
+      opacity: .7;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      margin: 8px 0;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      opacity: .7;
+    }
+    #btnStart {
+      background: #0a68d0;
+      color: white;
+    }
+    #btnStart:hover:not(:disabled) {
+      background: #0959b3;
+    }
+    #btnStop {
+      background: #e0e0e0;
+      color: #333;
+    }
+    #btnStop:hover:not(:disabled) {
+      background: #d1d1d1;
+    }
+    #btnViewResults, #btnViewResults2 {
+      background: #22c55e;
+      color: white;
+    }
+    #btnViewResults:hover:not(:disabled), 
+    #btnViewResults2:hover:not(:disabled) {
+      background: #16a34a;
+    }
+    
+    .difficulty-group {
+      margin: 16px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .difficulty-group legend {
+      font-weight: 600;
+      padding: 0 4px;
+      margin-left: 8px;
+      font-size: 0.95rem;
+    }
+    .difficulty-options {
+      display: flex;
+      justify-content: space-around;
+      gap: 8px;
+    }
+    .difficulty-options input {
+      display: none;
+    }
+    .difficulty-options label {
+      display: block;
+      text-align: center;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      flex: 1;
+      background: #eee;
+      font-size: 0.9rem;
+      border: 1px solid #eee;
+    }
+    .difficulty-options input:checked + label {
+      background: #e2eafc;
+      color: #0959b3;
+      border-color: #0a68d0;
+      font-weight: 500;
+    }
+    
+    #error-message {
+      color: red;
+      font-weight: 500;
+      display: none;
+    }
+    
+    .divider {
+      height: 1px;
+      background: #ddd;
+      margin: 16px 0;
+    }
+  </style>
+</head>
+<body>
+  <h3>Sequential Quiz</h3>
+  
+  <p id="error-message"></p>
+
+  <div id="start-view">
+    <p>Generates questions as you watch.</p>
+
+    <fieldset class="difficulty-group">
+      <legend>Select Difficulty</legend>
+      <div class="difficulty-options">
+        <input type="radio" id="diff-easy" name="difficulty" value="Easy">
+        <label for="diff-easy">Easy</label>
+
+        <input type="radio" id="diff-medium" name="difficulty" value="Medium" checked>
+        <label for="diff-medium">Medium</label>
+
+        <input type="radio" id="diff-difficult" name="difficulty" value="Difficult">
+        <label for="diff-difficult">Difficult</label>
+      </div>
+    </fieldset>
+
+    <button id="btnStart">Start Quiz</button>
+    
+    <div class="divider"></div>
+    
+    <button id="btnViewResults">View Results</button>
+  </div>
+
+  <div id="running-view" style="display: none;">
+    <p>The quiz is generating...</p>
+    <button id="btnStop">Stop Quiz</button>
+    
+    <div class="divider"></div>
+    
+    <button id="btnViewResults2">View Results</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
