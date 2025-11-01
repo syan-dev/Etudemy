@@ -14,6 +14,7 @@ To use Etudemy, follow these steps:
 * Click on the `Load unpacked` button and select the `extension/` directory from this repository.
 * The Etudemy extension should now be installed and visible in your browser's toolbar.
 
+
 ### Usage
 
 Open a YouTube video, click the Etudemy extension icon in the toolbar, choose the difficulty level, and start answering the AI-generated questions!
@@ -34,3 +35,9 @@ You can also write down your own notes related to the video content.
 
 ![Quiz Notes](images/notes.png)
 
+
+### Flow Diagram
+
+Here is how Etudemy works:
+
+![flow diagram](images/flow.png)
