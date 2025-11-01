@@ -159,8 +159,6 @@ function injectResultsStylesOnce() {
 }
   // ... (coerceQuestion, normalizeQuestion, isValidQuestion, ensureModel, generateQuestionForChunk functions remain unchanged) ...
 
-  // ... (coerceQuestion, normalizeQuestion, isValidQuestion, ensureModel, generateQuestionForChunk functions remain unchanged) ...
-
   function coerceQuestion(out) {
     let obj = null;
     if (typeof out === "string") {
@@ -256,11 +254,7 @@ function injectResultsStylesOnce() {
    * [FIXED] Loads the overlay from 'quiz-overlay.html' and uses the
    * correct styles from 'quiz-overlay.css'.
    */
-<<<<<<< HEAD
-  async function showQuestionOverlay(q) {
-=======
   async function showQuestionOverlay(q, questionNumber, totalQuestions) {
->>>>>>> add-ytscript-extension
     await injectStylesOnce(); // Use the new function to load external CSS
     const v = $v();
     const wasPlaying = !!(v && !v.paused && !v.ended && v.readyState > 2);
@@ -298,9 +292,6 @@ function injectResultsStylesOnce() {
     ].filter(Boolean); // Filter out nulls if template was wrong
     const sub = box.querySelector("#ytq-feedback-sub");
     const skip = box.querySelector("#ytq-skip-btn");
-<<<<<<< HEAD
-
-=======
     // ← THÊM ĐOẠN NÀY (trước dòng title.textContent)
 // Add question counter (nếu có tham số questionNumber và totalQuestions)
   if (typeof questionNumber !== 'undefined' && typeof totalQuestions !== 'undefined') {
@@ -309,7 +300,6 @@ function injectResultsStylesOnce() {
     counter.textContent = `Question ${questionNumber} of ${totalQuestions}`;
     box.insertBefore(counter, title);
 }
->>>>>>> add-ytscript-extension
     // Populate template
     if (title) title.textContent = q.question || "Question";
     q.options.forEach((opt, i) => {
@@ -364,11 +354,7 @@ function injectResultsStylesOnce() {
   // ===================================================================
   // END OF FIXED FUNCTIONS
   // ===================================================================
-<<<<<<< HEAD
-
-=======
   // ← THÊM FUNCTION NÀY
-// ← THÊM FUNCTION NÀY
 async function showResultsPanel() {
   injectResultsStylesOnce();
 
@@ -426,254 +412,49 @@ async function showResultsPanel() {
       const item = document.createElement("div");
       item.className = `ytq-result-item ${result.skipped ? 'skipped' : (result.correct ? 'correct' : 'wrong')}`;
 
-      // Question number
       const number = document.createElement("div");
       number.className = "ytq-result-number";
       number.textContent = `Question ${index + 1}`;
       item.appendChild(number);
 
-      // Question text
       const question = document.createElement("div");
       question.className = "ytq-result-question";
       question.textContent = result.question;
       item.appendChild(question);
 
       if (result.skipped) {
-        // Skipped indicator
         const skippedText = document.createElement("div");
         skippedText.style.cssText = "font-style:italic;opacity:0.7;font-size:14px;";
         skippedText.textContent = "⏭️ Skipped";
         item.appendChild(skippedText);
       } else {
-        // Options container
-        const optionsContainer = document.createElement("div");
-        optionsContainer.className = "ytq-options";
+        // User's answer
+        const userAnswer = document.createElement("div");
+        userAnswer.className = `ytq-result-answer user-answer ${result.correct ? '' : 'wrong-choice'}`;
+        userAnswer.innerHTML = `
+          <span class="label ${result.correct ? 'correct' : 'wrong'}">Your answer:</span>
+          ${result.options[result.chosen]}
+        `;
+        item.appendChild(userAnswer);
 
-        result.options.forEach((option, optIndex) => {
-          const optDiv = document.createElement("div");
-          optDiv.className = "ytq-option";
-          
-          // Add class based on correctness
-          if (optIndex === result.answerIndex) {
-            optDiv.classList.add("correct");
+        // Correct answer (if wrong)
+        if (!result.correct) {
+          const correctAnswer = document.createElement("div");
+          correctAnswer.className = "ytq-result-answer correct-answer";
+          correctAnswer.innerHTML = `
+            <span class="label correct">Correct answer:</span>
+            ${result.options[result.answerIndex]}
+          `;
+          item.appendChild(correctAnswer);
+
+          // Explanation
+          if (result.explanation) {
+            const explanation = document.createElement("div");
+            explanation.className = "ytq-result-explanation";
+            explanation.textContent = `💡 ${result.explanation}`;
+            item.appendChild(explanation);
           }
-          if (optIndex === result.chosen && !result.correct) {
-            optDiv.classList.add("wrong-choice");
-          }
-
-          const optText = document.createElement("span");
-          optText.textContent = option;
-          optDiv.appendChild(optText);
-
-          // Add icon
-          if (optIndex === result.answerIndex) {
-            const icon = document.createElement("span");
-            icon.textContent = "✓";
-            icon.style.cssText = "color: #22c55e; font-weight: bold;";
-            optDiv.appendChild(icon);
-          } else if (optIndex === result.chosen && !result.correct) {
-            const icon = document.createElement("span");
-            icon.textContent = "✗";
-            icon.style.cssText = "color: #ef4444; font-weight: bold;";
-            optDiv.appendChild(icon);
-          }
-
-          optionsContainer.appendChild(optDiv);
-        });
-
-        item.appendChild(optionsContainer);
-
-        // ===== EXPLANATION SECTION (Editable) =====
-        const explSection = document.createElement("div");
-        explSection.className = "ytq-explanation-section";
-
-        const explHeader = document.createElement("div");
-        explHeader.className = "ytq-explanation-header";
-
-        const explTitle = document.createElement("div");
-        explTitle.className = "ytq-explanation-title";
-        explTitle.innerHTML = "💡 Explanation";
-        explHeader.appendChild(explTitle);
-
-        const explActions = document.createElement("div");
-        explActions.className = "ytq-explanation-actions";
-
-        const btnEdit = document.createElement("button");
-        btnEdit.className = "ytq-btn-edit";
-        btnEdit.textContent = "Edit";
-        explActions.appendChild(btnEdit);
-
-        const btnDelete = document.createElement("button");
-        btnDelete.className = "ytq-btn-delete";
-        btnDelete.textContent = "Delete";
-        explActions.appendChild(btnDelete);
-
-        explHeader.appendChild(explActions);
-        explSection.appendChild(explHeader);
-
-        // Explanation text/textarea
-        const explTextDiv = document.createElement("div");
-        explTextDiv.className = "ytq-explanation-text";
-        explTextDiv.textContent = result.explanation || "";
-        if (!result.explanation || result.explanation.trim() === "") {
-          explTextDiv.textContent = "No explanation provided.";
-          explTextDiv.classList.add("empty");
         }
-
-        const explTextarea = document.createElement("textarea");
-        explTextarea.className = "ytq-explanation-textarea";
-        explTextarea.style.display = "none";
-        explTextarea.value = result.explanation || "";
-
-        explSection.appendChild(explTextDiv);
-        explSection.appendChild(explTextarea);
-
-        // Edit mode buttons (hidden initially)
-        const explEditActions = document.createElement("div");
-        explEditActions.className = "ytq-explanation-actions";
-        explEditActions.style.cssText = "display: none; margin-top: 8px;";
-
-        const btnSave = document.createElement("button");
-        btnSave.className = "ytq-btn-save";
-        btnSave.textContent = "Save";
-        explEditActions.appendChild(btnSave);
-
-        const btnCancel = document.createElement("button");
-        btnCancel.className = "ytq-btn-cancel";
-        btnCancel.textContent = "Cancel";
-        explEditActions.appendChild(btnCancel);
-
-        explSection.appendChild(explEditActions);
-
-        // Edit button handler
-        btnEdit.addEventListener("click", () => {
-          explTextDiv.style.display = "none";
-          explTextarea.style.display = "block";
-          explActions.style.display = "none";
-          explEditActions.style.display = "flex";
-          explTextarea.focus();
-        });
-
-        // Cancel button handler
-        btnCancel.addEventListener("click", () => {
-          explTextarea.value = result.explanation || "";
-          explTextDiv.style.display = "block";
-          explTextarea.style.display = "none";
-          explActions.style.display = "flex";
-          explEditActions.style.display = "none";
-        });
-
-        // Save button handler
-        btnSave.addEventListener("click", () => {
-          const newExpl = explTextarea.value.trim();
-          result.explanation = newExpl;
-          explTextDiv.textContent = newExpl || "No explanation provided.";
-          if (!newExpl) {
-            explTextDiv.classList.add("empty");
-          } else {
-            explTextDiv.classList.remove("empty");
-          }
-          explTextDiv.style.display = "block";
-          explTextarea.style.display = "none";
-          explActions.style.display = "flex";
-          explEditActions.style.display = "none";
-          console.log("[YTQ] Explanation updated for question", index + 1);
-        });
-
-        // Delete button handler
-        btnDelete.addEventListener("click", () => {
-          if (confirm("Delete this explanation?")) {
-            result.explanation = "";
-            explTextDiv.textContent = "No explanation provided.";
-            explTextDiv.classList.add("empty");
-            explTextarea.value = "";
-            console.log("[YTQ] Explanation deleted for question", index + 1);
-          }
-        });
-
-        item.appendChild(explSection);
-
-        // ===== USER NOTE SECTION =====
-        const noteSection = document.createElement("div");
-        noteSection.className = "ytq-note-section";
-
-        const noteHeader = document.createElement("div");
-        noteHeader.className = "ytq-note-header";
-
-        const noteTitle = document.createElement("div");
-        noteTitle.className = "ytq-note-title";
-        noteTitle.innerHTML = "📌 My Note";
-        noteHeader.appendChild(noteTitle);
-
-        const noteToggle = document.createElement("button");
-        noteToggle.className = "ytq-note-toggle";
-        noteToggle.textContent = result.userNote ? "Edit" : "Add Note";
-        noteHeader.appendChild(noteToggle);
-
-        noteSection.appendChild(noteHeader);
-
-        // Note content (collapsed by default)
-        const noteContent = document.createElement("div");
-        noteContent.className = "ytq-note-content";
-        if (result.userNote) {
-          noteContent.classList.add("visible");
-        }
-
-        const noteTextarea = document.createElement("textarea");
-        noteTextarea.className = "ytq-note-textarea";
-        noteTextarea.placeholder = "Add your personal note here...";
-        noteTextarea.value = result.userNote || "";
-
-        const noteActions = document.createElement("div");
-        noteActions.className = "ytq-note-actions";
-
-        const btnSaveNote = document.createElement("button");
-        btnSaveNote.className = "ytq-btn-save-note";
-        btnSaveNote.textContent = "Save Note";
-        noteActions.appendChild(btnSaveNote);
-
-        const btnClearNote = document.createElement("button");
-        btnClearNote.className = "ytq-btn-clear-note";
-        btnClearNote.textContent = "Clear";
-        noteActions.appendChild(btnClearNote);
-
-        noteContent.appendChild(noteTextarea);
-        noteContent.appendChild(noteActions);
-        noteSection.appendChild(noteContent);
-
-        // Toggle note visibility
-        noteToggle.addEventListener("click", () => {
-          noteContent.classList.toggle("visible");
-          noteTextarea.focus();
-        });
-
-        // Save note handler
-        btnSaveNote.addEventListener("click", () => {
-          const noteText = noteTextarea.value.trim();
-          result.userNote = noteText;
-          noteToggle.textContent = noteText ? "Edit" : "Add Note";
-          console.log("[YTQ] Note saved for question", index + 1);
-          
-          // Optional: show success feedback
-          const originalText = btnSaveNote.textContent;
-          btnSaveNote.textContent = "✓ Saved!";
-          setTimeout(() => {
-            btnSaveNote.textContent = originalText;
-          }, 1500);
-        });
-
-        // Clear note handler
-        btnClearNote.addEventListener("click", () => {
-          if (confirm("Clear this note?")) {
-            noteTextarea.value = "";
-            result.userNote = "";
-            noteToggle.textContent = "Add Note";
-            noteContent.classList.remove("visible");
-            console.log("[YTQ] Note cleared for question", index + 1);
-          }
-        });
-
-        item.appendChild(noteSection);
       }
 
       resultsList.appendChild(item);
@@ -682,7 +463,6 @@ async function showResultsPanel() {
 
   document.body.appendChild(overlay);
 }
->>>>>>> add-ytscript-extension
   function waitForVideoToReach(targetSec, epsilon = 0.25) {
     return new Promise((resolve) => {
       const v = $v();
@@ -800,13 +580,10 @@ async function showResultsPanel() {
       sendResponse({ ok: true, running: state.running });
       return;
     }
-<<<<<<< HEAD
-=======
     if (msg?.action === "ytq_show_results") {
       showResultsPanel();
       sendResponse({ ok: true });
       return;
 }
->>>>>>> add-ytscript-extension
   });
 })();

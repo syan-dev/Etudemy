@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Transcript Grabber",
+  "version": "1.0",
+  "description": "Tự động lấy transcript từ video YouTube",
+  "permissions": ["scripting", "activeTab"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*"],
+      "js": ["scripts/content.js"]
+    }
+  ]
+}

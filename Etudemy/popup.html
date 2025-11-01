@@ -54,6 +54,14 @@
     #btnStop:hover:not(:disabled) {
       background: #d1d1d1;
     }
+    #btnViewResults, #btnViewResults2 {
+      background: #22c55e;
+      color: white;
+    }
+    #btnViewResults:hover:not(:disabled), 
+    #btnViewResults2:hover:not(:disabled) {
+      background: #16a34a;
+    }
     
     .difficulty-group {
       margin: 16px 0;
@@ -72,7 +80,6 @@
       justify-content: space-around;
       gap: 8px;
     }
-    /* Hide the actual radio button */
     .difficulty-options input {
       display: none;
     }
@@ -87,7 +94,6 @@
       font-size: 0.9rem;
       border: 1px solid #eee;
     }
-    /* Style for the checked label */
     .difficulty-options input:checked + label {
       background: #e2eafc;
       color: #0959b3;
@@ -95,11 +101,16 @@
       font-weight: 500;
     }
     
-    /* Error message style */
     #error-message {
       color: red;
       font-weight: 500;
-      display: none; /* Hidden by default */
+      display: none;
+    }
+    
+    .divider {
+      height: 1px;
+      background: #ddd;
+      margin: 16px 0;
     }
   </style>
 </head>
@@ -126,11 +137,19 @@
     </fieldset>
 
     <button id="btnStart">Start Quiz</button>
+    
+    <div class="divider"></div>
+    
+    <button id="btnViewResults">View Results</button>
   </div>
 
   <div id="running-view" style="display: none;">
     <p>The quiz is generating...</p>
     <button id="btnStop">Stop Quiz</button>
+    
+    <div class="divider"></div>
+    
+    <button id="btnViewResults2">View Results</button>
   </div>
 
   <script src="popup.js"></script>
